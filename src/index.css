@@ -2,41 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Professional cybersecurity & AI analysis interface design system */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 248 250 252; /* Light gray background */
+    --foreground: 226 232 240; /* Dark blue-gray text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 255 255 255; /* Pure white cards */
+    --card-foreground: 51 65 85; /* Slate-700 text */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 255 255 255;
+    --popover-foreground: 51 65 85;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Professional blue primary theme */
+    --primary: 217 91% 60%; /* Professional blue */
+    --primary-foreground: 255 255 255;
+    --primary-glow: 217 91% 70%; /* Lighter blue for glows */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 226 232 240; /* Light blue-gray */
+    --secondary-foreground: 51 65 85;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 248 250 252; /* Very light background */
+    --muted-foreground: 100 116 139; /* Gray-500 */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 255 255 255;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Security status colors */
+    --success: 142 76% 36%; /* Professional green for authentic */
+    --success-foreground: 255 255 255;
+    --warning: 45 93% 47%; /* Amber for suspicious */
+    --warning-foreground: 255 255 255;
+    --destructive: 0 84% 60%; /* Red for threats */
+    --destructive-foreground: 255 255 255;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 217 91% 60%;
 
-    --radius: 0.5rem;
+    /* Header gradient - deep blue to purple */
+    --gradient-header: linear-gradient(135deg, hsl(217 91% 20%), hsl(260 91% 25%));
+    
+    /* Professional shadows */
+    --shadow-elegant: 0 10px 25px -5px hsl(217 91% 60% / 0.1);
+    --shadow-glow: 0 0 30px hsl(var(--primary-glow) / 0.3);
+    
+    /* Audio visualization colors */
+    --audio-low: 142 76% 50%; /* Green for low levels */
+    --audio-medium: 45 93% 50%; /* Amber for medium */
+    --audio-high: 0 84% 60%; /* Red for high levels */
+    
+    /* Smooth transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
