@@ -1,29 +1,41 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AudioVisualizer } from '@/components/AudioVisualizer';
-import { DetectionButton } from '@/components/DetectionButton';
+import { FileUploadButton } from '../components/FileUploadButton';
+import { VoiceRecordButton } from '../components/VoiceRecordButton';
 import { ResultsPanel } from '@/components/ResultsPanel';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
-const Index = () => {
+const Upload = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
   const navigate = useNavigate();
 
   const handleToggleRecording = () => {
     setIsRecording(!isRecording);
   };
 
-  const handleNavigateToUpload = () => {
-    navigate('/upload');
+  const handleFileUpload = (file: File) => {
+    setAudioFile(file);
+  };
+
+  const handleRecordingComplete = (audioBlob: Blob) => {
+    setRecordedAudio(audioBlob);
+    setIsRecording(false);
+  };
+
+  const handleNavigateToRealtime = () => {
+    navigate('/');
   };
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Navigation Arrow Button - Fixed on right side center */}
-      <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-40">
+      {/* Navigation Arrow Button - Fixed on left side center */}
+      <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-40">
         <Button
-          onClick={handleNavigateToUpload}
+          onClick={handleNavigateToRealtime}
           size="lg"
           className="
             h-14 w-14 rounded-full transition-all duration-300 transform hover:scale-110
@@ -33,9 +45,9 @@ const Index = () => {
             hover:shadow-[0_0_30px_hsl(260_100%_70%)]
             group
           "
-          title="Go to Audio File Analysis"
+          title="Go to Real-time Detection"
         >
-          <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
+          <ArrowLeft className="w-6 h-6 transition-transform group-hover:-translate-x-1" />
         </Button>
       </div>
       {/* Fixed Header */}
@@ -53,17 +65,22 @@ const Index = () => {
           {/* Description Section */}
           <div className="text-center max-w-2xl mx-auto">
             <p className="text-lg text-gradient-cyan-blue glow-blue leading-relaxed">
-              Real-time AI-powered deepfake audio detection system that analyzes voice patterns 
-              and identifies synthetic speech with advanced machine learning algorithms.
+              Upload audio files or record new audio to analyze for deepfake detection. 
+              Supports multiple audio formats with advanced AI analysis capabilities.
             </p>
           </div>
 
           {/* Controls Section */}
-          <div className="text-center space-y-20">
-            <DetectionButton 
-              isRecording={isRecording} 
-              onToggle={handleToggleRecording} 
-            />
+          <div className="text-center space-y-12">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <FileUploadButton onFileUpload={handleFileUpload} />
+              <VoiceRecordButton 
+                isRecording={isRecording}
+                onToggleRecording={handleToggleRecording}
+                onRecordingComplete={handleRecordingComplete}
+                recordedAudio={recordedAudio}
+              />
+            </div>
             
             {/* Audio Visualization */}
             <div className="max-w-2xl mx-auto">
@@ -81,4 +98,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Upload;

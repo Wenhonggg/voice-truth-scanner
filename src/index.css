@@ -6,52 +6,54 @@
 
 @layer base {
   :root {
-    --background: 255 255 255; /* White background */
-    --foreground: 0 0% 0%; /* Black text */
+    /* Tech-focused dark theme with blue-purple accents */
+    --background: 220 26% 8%; /* Dark navy background */
+    --foreground: 220 15% 95%; /* Light blue-gray text */
 
-    --card: 255 255 255; /* White cards */
-    --card-foreground: 0 0% 0%; /* Black text on cards */
+    --card: 220 26% 12%; /* Slightly lighter dark cards */
+    --card-foreground: 220 15% 95%; /* Light text on cards */
 
-    --popover: 255 255 255;
-    --popover-foreground: 0 0% 0%;
+    --popover: 220 26% 12%;
+    --popover-foreground: 220 15% 95%;
 
-    /* Black and white theme */
-    --primary: 0 0% 0%; /* Black */
-    --primary-foreground: 255 255 255; /* White */
-    --primary-glow: 0 0% 20%; /* Dark gray for glows */
+    /* Blue to purple theme */
+    --primary: 260 100% 70%; /* Bright purple */
+    --primary-foreground: 220 15% 95%; /* Light text */
+    --primary-glow: 260 100% 80%; /* Purple glow */
 
-    --secondary: 0 0% 95%; /* Light gray */
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 220 26% 18%; /* Dark blue-gray */
+    --secondary-foreground: 220 15% 95%;
 
-    --muted: 0 0% 96%; /* Very light gray */
-    --muted-foreground: 0 0% 40%; /* Medium gray */
+    --muted: 220 26% 16%; /* Muted dark */
+    --muted-foreground: 220 15% 65%; /* Muted light */
 
-    --accent: 0 0% 0%;
-    --accent-foreground: 255 255 255;
+    --accent: 240 100% 70%; /* Bright blue */
+    --accent-foreground: 220 15% 95%;
 
-    /* Monochrome status colors */
-    --success: 0 0% 0%; /* Black for authentic */
-    --success-foreground: 255 255 255;
-    --warning: 0 0% 50%; /* Gray for suspicious */
-    --warning-foreground: 255 255 255;
-    --destructive: 0 0% 20%; /* Dark gray for threats */
-    --destructive-foreground: 255 255 255;
+    /* Tech status colors */
+    --success: 150 100% 60%; /* Green for authentic */
+    --success-foreground: 220 26% 8%;
+    --warning: 45 100% 60%; /* Orange for suspicious */
+    --warning-foreground: 220 26% 8%;
+    --destructive: 0 100% 60%; /* Red for threats */
+    --destructive-foreground: 220 15% 95%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 0%;
+    --border: 220 26% 20%;
+    --input: 220 26% 16%;
+    --ring: 260 100% 70%;
 
-    /* Black gradient header */
-    --gradient-header: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 15%));
+    /* Blue to purple gradient header */
+    --gradient-header: linear-gradient(135deg, hsl(240 100% 20%), hsl(260 100% 25%));
+    --gradient-text: linear-gradient(135deg, hsl(240 100% 70%), hsl(260 100% 70%));
     
-    /* Monochrome shadows */
-    --shadow-elegant: 0 10px 25px -5px hsl(0 0% 0% / 0.1);
-    --shadow-glow: 0 0 30px hsl(0 0% 0% / 0.2);
+    /* Tech shadows with glow */
+    --shadow-elegant: 0 10px 25px -5px hsl(260 100% 10% / 0.4);
+    --shadow-glow: 0 0 30px hsl(260 100% 70% / 0.3);
     
-    /* Audio visualization - grayscale */
-    --audio-low: 0 0% 60%; /* Light gray for low levels */
-    --audio-medium: 0 0% 30%; /* Medium gray */
-    --audio-high: 0 0% 0%; /* Black for high levels */
+    /* Audio visualization - blue to purple */
+    --audio-low: 240 100% 70%; /* Blue for low levels */
+    --audio-medium: 250 100% 70%; /* Blue-purple */
+    --audio-high: 260 100% 70%; /* Purple for high levels */
     
     /* Smooth transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -117,10 +119,57 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Audio Visualization Utilities */
+@layer utilities {
+  .bg-audio-low {
+    background-color: hsl(var(--audio-low));
+  }
+  
+  .bg-audio-medium {
+    background-color: hsl(var(--audio-medium));
+  }
+  
+  .bg-audio-high {
+    background-color: hsl(var(--audio-high));
+  }
+
+  /* Gradient Text Utilities */
+  .text-gradient {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-blue-purple {
+    background: linear-gradient(135deg, hsl(240 100% 70%), hsl(260 100% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-cyan-blue {
+    background: linear-gradient(135deg, hsl(190 100% 70%), hsl(240 100% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow effects */
+  .glow-purple {
+    text-shadow: 0 0 20px hsl(260 100% 70% / 0.5);
+  }
+
+  .glow-blue {
+    text-shadow: 0 0 20px hsl(240 100% 70% / 0.5);
   }
 }

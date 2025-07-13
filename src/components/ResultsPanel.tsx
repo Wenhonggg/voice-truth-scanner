@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 interface DetectionResult {
   id: string;
@@ -43,12 +43,18 @@ export function ResultsPanel({ isRecording }: ResultsPanelProps) {
     return () => clearInterval(interval);
   }, [isRecording]);
 
-  const getStatusIcon = (isAuthentic: boolean) => {
-    return isAuthentic ? (
-      <CheckCircle className="w-5 h-5 text-success" />
-    ) : (
-      <AlertTriangle className="w-5 h-5 text-destructive" />
-    );
+  // Add colored status icons based on detection results
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'authentic':
+        return <ShieldCheck className="w-6 h-6 text-green-500" />; // Green for authentic
+      case 'suspicious':
+        return <ShieldAlert className="w-6 h-6 text-yellow-500" />; // Yellow for suspicious  
+      case 'deepfake':
+        return <Shield className="w-6 h-6 text-red-500" />; // Red for deepfake
+      default:
+        return <Shield className="w-6 h-6 text-gray-500" />; // Gray for idle/unknown
+    }
   };
 
   const getStatusBadge = (isAuthentic: boolean, confidence: number) => {
@@ -63,12 +69,14 @@ export function ResultsPanel({ isRecording }: ResultsPanelProps) {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto shadow-elegant">
+    <Card className="w-full max-w-4xl mx-auto shadow-elegant border-2 border-purple-500/30">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-xl">
-          <Shield className="w-6 h-6 text-primary" />
-          Real-Time Results
-        </CardTitle>
+        <div className="flex items-center gap-3 mb-4">
+          {getStatusIcon(results[0]?.isAuthentic ? 'authentic' : 'suspicious')}
+          <CardTitle className="text-xl">
+            Real-Time Results
+          </CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
         {results.length === 0 ? (
@@ -84,10 +92,10 @@ export function ResultsPanel({ isRecording }: ResultsPanelProps) {
               {results.map((result) => (
                 <div
                   key={result.id}
-                  className="flex items-start justify-between p-4 bg-muted/30 rounded-lg border animate-fade-in-up"
+                  className="bg-card rounded-lg p-6 border-2 border-purple-500/30 shadow-lg"
                 >
                   <div className="flex items-start gap-3">
-                    {getStatusIcon(result.isAuthentic)}
+                    {getStatusIcon(result.isAuthentic ? 'authentic' : 'suspicious')}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium text-muted-foreground">
