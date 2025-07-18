@@ -1,47 +1,15 @@
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
-
-interface DetectionResult {
-  id: string;
-  timestamp: string;
-  confidence: number;
-  isAuthentic: boolean;
-  details: string;
-}
+import { Shield, ShieldAlert, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { useVoiceDetection } from '@/hooks/useVoiceDetection';
 
 interface ResultsPanelProps {
   isRecording: boolean;
 }
 
 export function ResultsPanel({ isRecording }: ResultsPanelProps) {
-  const [results, setResults] = useState<DetectionResult[]>([]);
-
-  useEffect(() => {
-    if (!isRecording) return;
-
-    // Simulate real-time detection results
-    const interval = setInterval(() => {
-      const confidence = Math.random() * 100;
-      const isAuthentic = confidence > 30; // Simulate detection logic
-      
-      const newResult: DetectionResult = {
-        id: Date.now().toString(),
-        timestamp: new Date().toLocaleTimeString(),
-        confidence: confidence,
-        isAuthentic,
-        details: isAuthentic 
-          ? 'Voice patterns match natural human speech characteristics'
-          : 'Suspicious artifacts detected in voice synthesis patterns'
-      };
-
-      setResults(prev => [newResult, ...prev].slice(0, 20)); // Keep last 20 results
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [isRecording]);
+  const { results, error, isProcessing, isSpeaking } = useVoiceDetection({ isRecording });
 
   // Add colored status icons based on detection results
   const getStatusIcon = (status: string) => {
@@ -76,7 +44,25 @@ export function ResultsPanel({ isRecording }: ResultsPanelProps) {
           <CardTitle className="text-xl">
             Real-Time Results
           </CardTitle>
+          {isProcessing && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+              Processing...
+            </div>
+          )}
+          {isRecording && !isSpeaking && !isProcessing && (
+            <div className="flex items-center gap-2 text-sm text-yellow-500">
+              <div className="w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full animate-pulse" />
+              Waiting for speech...
+            </div>
+          )}
         </div>
+        {error && (
+          <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+            <AlertTriangle className="w-4 h-4 text-destructive" />
+            <span className="text-sm text-destructive">{error}</span>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {results.length === 0 ? (
