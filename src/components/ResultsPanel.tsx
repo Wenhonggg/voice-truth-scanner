@@ -26,6 +26,14 @@ export function ResultsPanel({ isRecording }: ResultsPanelProps) {
   };
 
   const getStatusBadge = (isAuthentic: boolean, confidence: number) => {
+    if (confidence === 0) {
+      return (
+        <Badge variant="secondary" className="bg-gray-500/20 text-gray-600">
+          Silent
+        </Badge>
+      );
+    }
+    
     return (
       <Badge 
         variant={isAuthentic ? "default" : "destructive"}
@@ -68,7 +76,9 @@ export function ResultsPanel({ isRecording }: ResultsPanelProps) {
         {results.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             {isRecording 
-              ? "Analyzing audio... Results will appear here." 
+              ? (isSpeaking 
+                  ? "Analyzing audio... Results will appear here." 
+                  : "Please speak into the microphone to begin analysis.")
               : "Start detection to see real-time analysis results."
             }
           </div>
@@ -78,7 +88,13 @@ export function ResultsPanel({ isRecording }: ResultsPanelProps) {
               {results.map((result) => (
                 <div
                   key={result.id}
-                  className="bg-card rounded-lg p-6 border-2 border-purple-500/30 shadow-lg"
+                  className={`bg-card rounded-lg p-6 border-2 shadow-lg ${
+                    result.confidence === 0 
+                      ? 'border-gray-400/30 bg-gray-50/50' // Different style for silent segments
+                      : result.isAuthentic 
+                        ? 'border-green-500/30' 
+                        : 'border-red-500/30'
+                  }`}
                 >
                   <div className="flex items-start gap-3">
                     {getStatusIcon(result.isAuthentic ? 'authentic' : 'suspicious')}

@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // API utility functions
-export const API_BASE_URL = "http://127.0.0.1:5000";
+export const API_BASE_URL = "https://detecting-deepfake-audio.onrender.com";
 
 export async function testApiConnection(): Promise<boolean> {
   try {
@@ -21,7 +21,7 @@ export async function testApiConnection(): Promise<boolean> {
 // Audio analysis utilities
 export async function detectAudioSilence(
   audioBlob: Blob,
-  threshold: number = 0.01
+  threshold: number = 0.008
 ): Promise<boolean> {
   try {
     const arrayBuffer = await audioBlob.arrayBuffer();

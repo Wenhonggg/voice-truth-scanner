@@ -24,6 +24,7 @@ export function useVoiceDetection({ isRecording }: UseVoiceDetectionProps) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const recentPredictionsRef = useRef<(boolean | null)[]>([]); // null for silent segments
   const silentSegmentsRef = useRef<number>(0);
+  const resultIdCounterRef = useRef<number>(0); // Counter for unique IDs
 
   const processAudioChunk = useCallback(async (audioBlob: Blob) => {
     try {
@@ -44,7 +45,7 @@ export function useVoiceDetection({ isRecording }: UseVoiceDetectionProps) {
         
         // Create a result for silence (don't send to API)
         const newResult: DetectionResult = {
-          id: Date.now().toString(),
+          id: `${Date.now()}-${++resultIdCounterRef.current}`,
           timestamp: new Date().toLocaleTimeString(),
           confidence: 0,
           isAuthentic: true, // Neutral display
@@ -95,7 +96,7 @@ export function useVoiceDetection({ isRecording }: UseVoiceDetectionProps) {
       }
 
       const newResult: DetectionResult = {
-        id: Date.now().toString(),
+        id: `${Date.now()}-${++resultIdCounterRef.current}`,
         timestamp: new Date().toLocaleTimeString(),
         confidence: confidence,
         isAuthentic,
@@ -123,18 +124,25 @@ export function useVoiceDetection({ isRecording }: UseVoiceDetectionProps) {
         audio: {
           sampleRate: 44100,
           channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: false, // Keep natural voice characteristics
+          echoCancellation: false,
+          noiseSuppression: false,
           autoGainControl: false
         } 
       });
       
       streamRef.current = stream;
       
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      // Prefer WAV format for MediaRecorder if supported
+      let mimeType = '';
+      if (MediaRecorder.isTypeSupported('audio/wav')) {
+        mimeType = 'audio/wav';
+      } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=pcm')) {
+        mimeType = 'audio/webm;codecs=pcm';
+      } else {
+        mimeType = 'audio/webm'; // fallback
+      }
       
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
       
       // Record in 0.2 second intervals
@@ -149,13 +157,17 @@ export function useVoiceDetection({ isRecording }: UseVoiceDetectionProps) {
       
       mediaRecorder.ondataavailable = async (event) => {
         if (event.data.size > 0) {
-          // Convert webm to wav
-          const arrayBuffer = await event.data.arrayBuffer();
-          const audioContext = new AudioContext({ sampleRate: 44100 });
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-          
-          // Convert to WAV
-          const wavBlob = await audioBufferToWav(audioBuffer);
+          let wavBlob: Blob;
+          if (mimeType === 'audio/wav') {
+            // Already WAV, just use it
+            wavBlob = event.data;
+          } else {
+            // Convert to WAV from PCM
+            const arrayBuffer = await event.data.arrayBuffer();
+            const audioContext = new AudioContext({ sampleRate: 44100 });
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            wavBlob = await audioBufferToWav(audioBuffer);
+          }
           await processAudioChunk(wavBlob);
         }
       };
@@ -205,21 +217,36 @@ export function useVoiceDetection({ isRecording }: UseVoiceDetectionProps) {
       setResults([]);
       recentPredictionsRef.current = [];
       silentSegmentsRef.current = 0;
+      resultIdCounterRef.current = 0;
     }
   };
 }
 
 // Helper function to convert AudioBuffer to WAV blob
 async function audioBufferToWav(audioBuffer: AudioBuffer): Promise<Blob> {
-  const numberOfChannels = audioBuffer.numberOfChannels;
-  const sampleRate = audioBuffer.sampleRate;
+  // Always force mono, 44.1kHz, int16
+  const sampleRate = 44100;
+  const numberOfChannels = 1;
   const format = 1; // PCM
   const bitDepth = 16;
+  
+  // If input is stereo, downmix to mono
+  let channelData: Float32Array;
+  if (audioBuffer.numberOfChannels > 1) {
+    const left = audioBuffer.getChannelData(0);
+    const right = audioBuffer.getChannelData(1);
+    channelData = new Float32Array(audioBuffer.length);
+    for (let i = 0; i < audioBuffer.length; i++) {
+      channelData[i] = (left[i] + right[i]) / 2;
+    }
+  } else {
+    channelData = audioBuffer.getChannelData(0);
+  }
   
   const bytesPerSample = bitDepth / 8;
   const blockAlign = numberOfChannels * bytesPerSample;
   
-  const buffer = new ArrayBuffer(44 + audioBuffer.length * bytesPerSample);
+  const buffer = new ArrayBuffer(44 + channelData.length * bytesPerSample);
   const view = new DataView(buffer);
   
   // WAV header
@@ -230,7 +257,7 @@ async function audioBufferToWav(audioBuffer: AudioBuffer): Promise<Blob> {
   };
   
   writeString(0, 'RIFF');
-  view.setUint32(4, 36 + audioBuffer.length * bytesPerSample, true);
+  view.setUint32(4, 36 + channelData.length * bytesPerSample, true);
   writeString(8, 'WAVE');
   writeString(12, 'fmt ');
   view.setUint32(16, 16, true);
@@ -241,10 +268,9 @@ async function audioBufferToWav(audioBuffer: AudioBuffer): Promise<Blob> {
   view.setUint16(32, blockAlign, true);
   view.setUint16(34, bitDepth, true);
   writeString(36, 'data');
-  view.setUint32(40, audioBuffer.length * bytesPerSample, true);
+  view.setUint32(40, channelData.length * bytesPerSample, true);
   
   // Convert audio data
-  const channelData = audioBuffer.getChannelData(0);
   let offset = 44;
   for (let i = 0; i < channelData.length; i++) {
     const sample = Math.max(-1, Math.min(1, channelData[i]));
