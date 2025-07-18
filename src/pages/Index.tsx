@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AudioVisualizer } from '@/components/AudioVisualizer';
 import { DetectionButton } from '@/components/DetectionButton';
 import { ResultsPanel } from '@/components/ResultsPanel';
+import { ApiStatus } from '@/components/ApiStatus';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
@@ -41,9 +42,12 @@ const Index = () => {
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gradient border-b-2 border-purple-500/30 shadow-lg backdrop-blur-sm">
         <div className="container mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-gradient-blue-purple glow-purple text-center">
-            Deepfake Audio Detection
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gradient-blue-purple glow-purple">
+              Deepfake Audio Detection
+            </h1>
+            <ApiStatus />
+          </div>
         </div>
       </header>
 
